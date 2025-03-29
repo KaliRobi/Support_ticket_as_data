@@ -3,7 +3,7 @@ from elasticsearch import Elasticsearch
 
 es = Elasticsearch('http://localhost:9200')
 
-mapping = {
+tickets_mapping = {
   "mappings": {
     "properties": {
       "ticket_id": {"type": "long"},
@@ -39,4 +39,26 @@ mapping = {
   }
 }
 
-es.indices.create(index="support_tickets", body=mapping )
+
+users_mapping = {
+    "mappings": {
+      "properties":{
+        "id":  {"type" : "keyword"},
+        "roles": {"type": "text"},
+        "password" :  {"type" : "text"},
+        "full_name": {"type" : "keyword"},
+        "email": {"type": "text"}
+      }
+    }
+}
+
+
+def create_ticket_index():
+  es.indices.create(index="support_tickets", body=tickets_mapping  )
+
+
+def create_user_index():
+  es.indices.create(index="user_index", body=users_mapping )
+
+
+create_user_index()

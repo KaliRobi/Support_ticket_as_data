@@ -1,0 +1,38 @@
+
+[
+    {
+        "id": 101,
+        "password": "password123",
+        "roles": ["user_dashboard_role", "kibana_user_dashboard"],
+        "full_name": "Jaanus",
+        "email": "Jaanus@example.com"
+    },
+    {   
+        "id": 102,
+        "password": "password123",
+        "roles": ["user_dashboard_role", "kibana_user_dashboard"],
+        "full_name": "Kati",
+        "email": "Kati@example.com"
+    },
+    {
+        "id": 103,
+        "password": "password123",
+        "roles": ["user_dashboard_role", "kibana_user_dashboard"],
+        "full_name": "Markus",
+        "email": "Markus@example.com"
+    },
+    {   
+        "id": 104,
+        "password": "password123",
+        "roles": ["user_dashboard_role", "kibana_user_dashboard"],
+        "full_name": "Siim",
+        "email": "Siim@example.com"
+    }
+    ,{  
+        "id": 105,
+        "password": "password123",
+        "roles": ["user_dashboard_role", "kibana_user_dashboard"],
+        "full_name": "Anna",
+        "email": "Anna@example.com"
+    }
+]
