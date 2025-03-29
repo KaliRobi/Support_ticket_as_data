@@ -9,11 +9,11 @@ tickets_mapping = {
       "ticket_id": {"type": "long"},
       "created_at": {
         "type": "date",
-        "format": "strict_date_time"
+        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
       },
       "resolved_at": {
         "type": "date",
-        "format": "strict_date_time"
+        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
       },
       "assigned_technician": { "type": "keyword" },
       "severity": {"type": "keyword"},
@@ -29,7 +29,7 @@ tickets_mapping = {
       "escalated": {"type": "boolean"},
       "date_assigned": {
         "type": "date",
-        "format": "strict_date_time"
+        "format": "yyyy-MM-dd'T'HH:mm:ss.SSSSSS"
       },
       "time_to_first_response_hours": {"type": "float"},
       "technician_notes": {"type": "text"},
@@ -51,14 +51,17 @@ users_mapping = {
       }
     }
 }
+def create_index(name, body):
+    es.indices.create(index=name, body=body)  
 
 
-def create_ticket_index():
-  es.indices.create(index="support_tickets", body=tickets_mapping  )
 
 
-def create_user_index():
-  es.indices.create(index="user_index", body=users_mapping )
+def delete_index(index_name):
+  es.indices.delete(index=index_name)
 
 
-create_user_index()
+#delete_index("support_tickets") 
+#delete_index("user_index")
+create_index(name="support_tickets", body=tickets_mapping)
+#create_index(name="user_index", body=users_mapping)
