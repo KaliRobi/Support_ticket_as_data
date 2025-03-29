@@ -1,0 +1,41 @@
+- name: Create Python/Flask container
+  hosts: local
+  become: yes
+  tasks:
+    - name: Launch blank Python+Flask container with port forwarding
+      community.docker.docker_container:
+        name: flask_empty
+        image: python:3.11-slim  
+        state: started
+        command: sleep infinity  
+        published_ports:
+          - "55555:55555"
+
+    - name: Install Flask inside container
+      community.docker.docker_container_exec:
+        container: flask_empty
+        command: pip install flask
+
+
+
+- name : handle container file
+  hosts: tickets
+  become: no
+  tasks:
+      - name: copy file
+        tags: tickets
+        copy:
+          src: ./service.py
+          dest: service.py
+          owner: root
+          group: root
+          mode: 0644
+
+      - name: Run service.py in container
+        community.docker.docker_container_exec:
+          container: flask_empty
+          command: python3 /service/service.py
+
+
+   
+
