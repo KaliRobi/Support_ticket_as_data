@@ -1,6 +1,9 @@
 from io import StringIO
 from elasticsearch import Elasticsearch
 import pandas as pd
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+
 
 es = Elasticsearch('http://localhost:9200')
 
