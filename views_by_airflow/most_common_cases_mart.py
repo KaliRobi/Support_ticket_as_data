@@ -1,4 +1,5 @@
 from io import StringIO
+import os
 from elasticsearch import Elasticsearch, helpers   
 import pandas as pd
 import logging
@@ -6,11 +7,11 @@ from airflow import DAG
 from airflow.exceptions import AirflowFailException
 from datetime import timedelta, datetime
 from airflow.operators.python import PythonOperator
-from airflow.providers.elasticsearch.hooks.elasticsearch import ElasticsearchHook
 
 
-es_hook = ElasticsearchHook(elasticsearch_conn_id="elasticsearch_default")
-es_client = es_hook.get_conn()
+
+es = Elasticsearch('http://localhost:9200')
+
 
 default_arguments = {
     'owner': 'airflow',
@@ -29,7 +30,7 @@ with DAG(
 ) as common_cases_dag:
     
     def extract_tickets(**kwargs):
-        query_result = es_client.esql.query( 
+        query_result = es.esql.query( 
             query= "FROM support_tickets",
             format="csv"
         )
@@ -56,7 +57,7 @@ with DAG(
         ti = kwargs['ti']
 
         tmp_extract_path = ti.xcom_pull(
-            task_id = 'extract_tickets_task',
+            task_ids = 'extract_tickets_task',
             key='tickets_data'
 
         )
@@ -77,40 +78,41 @@ with DAG(
 
         sm_pivoted = sm.unstack('assigned_technician')
 
-        resolution_pre_eng.rename(columns={'time_to_resolve': 'team_ave'}, inplace=True)
+        
         sm_pivoted.columns = sm_pivoted.columns.get_level_values(1)
 
         sm_pivoted['Team Average'] = resolution_pre_eng['time_to_resolve'].round(2)
         sm_pivoted = sm_pivoted.fillna('-')
 
         result_mart_path = '/tmp/common_cases_result_mart.csv'
-
-        sm_pivoted.to_csv(result_mart_path)
-
+        logging.info(f'the result_mart_path is {result_mart_path}')
+        sm_pivoted.to_csv(result_mart_path, index=False)
+        logging.info(f'the result_mart_path 2 is {result_mart_path}')
         ti.xcom_push(key='team_averages', value=result_mart_path)
 
 
     find_team_averages_task = PythonOperator(
-        task_id = 'ind_team_averages_task',
+        task_id = 'find_team_averages_task',
         python_callable=find_team_averages,
         dag=common_cases_dag,
         on_failure_callback=lambda context: logging.error(
-            'ind_team_averages_task failed'
+            'find_team_averages_task failed'
         )
     )
 
     # mappings should be provided upfront
 
     def send_dataframe_to_es(**kwargs):
-        team_preformance = kwargs['ti'].xcom_pull(
-            task_id = 'find_team_averages_task',
+        ti = kwargs['ti']
+        team_performance = ti.xcom_pull(
+            task_ids = 'find_team_averages_task',
             key = 'team_averages'
         )
+        
+        print(team_performance)
+        logging.info(f'the path is {team_performance}')
 
-        team_preformance_mart = pd.read_csv(team_preformance)
-
-        es_hook = ElasticsearchHook(elasticsearch_conn_id="elasticsearch_default")
-        es_client = es_hook.get_conn()
+        team_preformance_mart = pd.read_csv(team_performance)
 
         # Convert DataFrame to Elasticsearch bulk format
         actions = [
@@ -122,7 +124,7 @@ with DAG(
         ]
 
         # Use bulk API to send all data at once
-        helpers.bulk(es_client, actions)
+        helpers.bulk(es, actions)
 
 
 
