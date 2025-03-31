@@ -1,0 +1,31 @@
+5. Tickets by Severity
+
+    X-axis: severity
+
+    Y-axis: Count of tickets
+
+    Insight: Shows which severity levels are most common and if there are trends over time.
+
+6. Technician Workload Distribution
+
+    X-axis: assigned_technician
+
+    Y-axis: Count of tickets assigned
+
+    Insight: Identifies workload imbalances among technicians. Are some technicians handling significantly more tickets than others?
+
+7. Priority vs. Resolution Time
+
+    X-axis: priority
+
+    Y-axis: Average resolution_time_hours
+
+    Insight: Checks if higher-priority tickets are actually resolved faster.
+
+8. Issue Category Trends
+
+    X-axis: category
+
+    Y-axis: Count of tickets
+
+    Insight: Identifies the most frequent issues. Are there specific types of problems that need more attention?
