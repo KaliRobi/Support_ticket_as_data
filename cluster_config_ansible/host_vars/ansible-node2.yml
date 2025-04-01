@@ -1,0 +1,5 @@
+es_cluster_name: "support-tickets-prod" 
+es_node_name: "ansible-node2"
+es_network_host: "0.0.0.0"
+es_discovery_seeds: ["ansible-node1", "ansible-node2"]
+es_initial_master_nodes: ["ansible-node1", "ansible-node2"]

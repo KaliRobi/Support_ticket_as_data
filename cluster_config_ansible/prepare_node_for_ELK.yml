@@ -1,0 +1,94 @@
+- name: Prepare node 
+  hosts: all
+  tags: prepare_node
+  tasks:
+
+    - name: Install required packages
+      apt:
+        name: 
+          - apt-transport-https
+          - gnupg
+        state: present
+        update_cache: yes
+
+    - name: keyrings direcotry
+      file:
+        path: /usr/share/keyrings
+        state: directory
+        mode: 0755
+    
+    - name: Download Elasticsearch GPG key
+      get_url:
+        url: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        dest: /tmp/elasticsearch.pgp
+      register: download
+
+    - name: Convert GPG key to binary format
+      command: gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg /tmp/elasticsearch.pgp
+      args:
+        creates: /usr/share/keyrings/elasticsearch-keyring.gpg
+
+
+    - name: Ensure Elasticsearch APT repository is configured
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main"
+        state: present
+        filename: elastic-8.x
+
+
+- name: configure elastic nodes
+  tags: config_cluster
+  hosts: all
+  tasks: 
+        - name: copy config files
+          template:
+            src: elasticsearch_template.yml.j2
+            dest: "/etc/elasticsearch/elasticsearch.yml"
+            owner: root
+            group: elasticsearch
+            mode: 0640
+          notify: restart_elasticsearch
+  handlers:
+
+    - name: restart_elasticsearch
+      tags: restart_elasticsearch
+      service:
+        name: elasticsearch
+        state: restarted
+
+- name: Install Elasticstack
+  hosts: all
+  tags: install_stack
+  tasks:
+
+      - name: Install elastic stack all
+        tags: install_elk_all
+        apt:
+          name: 
+           - elasticsearch
+           - logstash
+           - kibana
+          state: present
+
+
+  handlers:
+
+    - name: restart_elasticsearch
+      tags: restart_elasticsearch
+      service:
+        name: elasticsearch
+        state: restarted
+
+    - name: restart_logstash
+      tags: restart_logstash
+      service:
+        name: logstash
+        state: restarted
+
+    - name: restart_kibana
+      tags: restart_kibana
+      service:
+        name: kibana
+        state: restarted
+
+

@@ -1,0 +1,9 @@
+all:
+  hosts:
+    ansible-node1:
+      ansible_host: ansible-node1  
+      ansible_connection: docker
+    ansible-node2:
+      ansible_host: ansible-node2  
+      ansible_connection: docker
+
