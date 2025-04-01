@@ -27,7 +27,7 @@
       command: gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg /tmp/elasticsearch.pgp
       args:
         creates: /usr/share/keyrings/elasticsearch-keyring.gpg
-
+      when: download.changed 
 
     - name: Ensure Elasticsearch APT repository is configured
       apt_repository:
@@ -55,6 +55,7 @@
       service:
         name: elasticsearch
         state: restarted
+        enabled: yes
 
 - name: Install Elasticstack
   hosts: all
@@ -78,17 +79,20 @@
       service:
         name: elasticsearch
         state: restarted
+        enabled: yes
 
     - name: restart_logstash
       tags: restart_logstash
       service:
         name: logstash
         state: restarted
+        enabled: yes
 
     - name: restart_kibana
       tags: restart_kibana
       service:
         name: kibana
         state: restarted
+        enabled: yes
 
 
